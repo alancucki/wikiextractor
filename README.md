@@ -5,6 +5,12 @@ The tool is written in Python and requires Python 2.7 or Python 3.3+ but no addi
 
 For further information, see the [project Home Page](http://medialab.di.unipi.it/wiki/Wikipedia_Extractor) or the [Wiki](https://github.com/attardi/wikiextractor/wiki).
 
+# Quickstart
+```
+wget http://download.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles.xml.bz2
+bzcat enwiki-latest-pages-articles.xml.bz2 | ./WikiExtractor.py -o - -m > enwiki-latest-pages-articles.txt - 
+```
+
 # Wikipedia Cirrus Extractor
 
 `cirrus-extractor.py` is a version of the script that performs extraction from a Wikipedia Cirrus dump.

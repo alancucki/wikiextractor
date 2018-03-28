@@ -152,6 +152,10 @@ options = SimpleNamespace(
     keepSections = True,
 
     ##
+    # Whether to mark headers with '='
+    markHeaders = False,
+
+    ##
     # Whether to preserve lists
     keepLists = False,
 
@@ -562,15 +566,22 @@ class Extractor(object):
             out.write(out_str)
             out.write('\n')
         else:
-            if options.print_revision:
+            if options.markHeaders:
+                header = '\n= ' + self.title + ' =\n\n'
+            elif options.print_revision:
                 header = '<doc id="%s" revid="%s" url="%s" title="%s">\n' % (self.id, self.revid, url, self.title)
             else:
                 header = '<doc id="%s" url="%s" title="%s">\n' % (self.id, url, self.title)
-            footer = "\n</doc>\n"
+            if options.markHeaders:
+                footer = "\n"
+            else:
+                footer = "\n</doc>\n"
             if out == sys.stdout:   # option -a or -o -
                 header = header.encode('utf-8')
             out.write(header)
-            for line in text:
+            for i, line in enumerate(text):
+                if options.markHeaders and i == 0:
+                    continue  # XXX Assume the title repeats in the first line
                 if out == sys.stdout:   # option -a or -o -
                     line = line.encode('utf-8')
                 out.write(line)
@@ -2538,6 +2549,8 @@ def compact(text):
             lev = len(m.group(1)) # header level
             if options.toHTML:
                 page.append("<h%d>%s</h%d>" % (lev, title, lev))
+            if options.markHeaders:
+                page.append('\n%s %s %s\n' % ('='*lev, title, '='*lev))
             if title and title[-1] not in '!?':
                 title += '.'    # terminate sentence.
             headers[lev] = title
@@ -3105,6 +3118,8 @@ def main():
                         help="preserve links")
     groupP.add_argument("-s", "--sections", action="store_true",
                         help="preserve sections")
+    groupP.add_argument("-m", "--mark_headers", action="store_true",
+                        help="mark headers with '=' (the number of '=' signifies nesting)")
     groupP.add_argument("--lists", action="store_true",
                         help="preserve lists")
     groupP.add_argument("-ns", "--namespaces", default="", metavar="ns1,ns2",
@@ -3144,6 +3159,7 @@ def main():
 
     options.keepLinks = args.links
     options.keepSections = args.sections
+    options.markHeaders = args.mark_headers
     options.keepLists = args.lists
     options.toHTML = args.html
     options.write_json = args.json
